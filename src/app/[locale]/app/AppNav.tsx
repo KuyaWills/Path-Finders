@@ -2,13 +2,12 @@
 
 import { useTranslations } from "next-intl";
 import { Link, usePathname } from "@/i18n/navigation";
-import { Home, BookOpen, MessageCircle } from "lucide-react";
+import { Home } from "lucide-react";
 
 export function AppNav() {
   const t = useTranslations("app");
   const pathname = usePathname();
   const base = "/app";
-  const isActive = (path: string) => pathname === path || pathname?.startsWith(path + "/");
 
   return (
     <nav className="border-b border-zinc-200 bg-white px-4 py-3">
@@ -26,24 +25,6 @@ export function AppNav() {
           >
             <Home className="h-4 w-4" />
             <span className="hidden sm:inline">{t("home")}</span>
-          </Link>
-          <Link
-            href="/app/library"
-            className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-              isActive("/app/library") ? "bg-zinc-100 text-zinc-900" : "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900"
-            }`}
-          >
-            <BookOpen className="h-4 w-4" />
-            <span className="hidden sm:inline">{t("library")}</span>
-          </Link>
-          <Link
-            href="/app/chat"
-            className={`flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-              isActive("/app/chat") ? "bg-zinc-100 text-zinc-900" : "text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900"
-            }`}
-          >
-            <MessageCircle className="h-4 w-4" />
-            <span className="hidden sm:inline">{t("aiHelper")}</span>
           </Link>
         </div>
       </div>

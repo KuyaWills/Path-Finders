@@ -6,31 +6,65 @@ export interface QuizStepConfig {
   options?: string[]; // for single/multi: option keys step1_option1, step1_option2...
 }
 
+/**
+ * Quiz steps designed for junior and experienced developers.
+ * Choices are analyzable so the AI can compare user answers to stronger practices
+ * and produce an improvement plan.
+ */
 export const QUIZ_STEPS: QuizStepConfig[] = [
   {
     type: "single",
     translationKey: "step1",
-    options: ["option1_role_junior", "option1_role_mid", "option1_role_senior", "option1_role_student", "option1_role_other"],
+    options: [
+      "debug_console",
+      "debug_debugger",
+      "debug_stack_trace",
+      "debug_rubber_duck",
+      "debug_search_error",
+    ],
   },
   {
-    type: "multi",
+    type: "single",
     translationKey: "step2",
-    options: ["option2_improve_code", "option2_improve_system", "option2_improve_debug", "option2_improve_career", "option2_improve_confidence"],
+    options: [
+      "stuck_google_first",
+      "stuck_try_then_ask",
+      "stuck_docs_first",
+      "stuck_ask_teammate",
+      "stuck_take_break",
+    ],
   },
   {
     type: "single",
     translationKey: "step3",
-    options: ["option3_time_1", "option3_time_3", "option3_time_5", "option3_time_10", "option3_time_15"],
-  },
-  {
-    type: "single",
-    translationKey: "step4",
-    options: ["option4_blocker_time", "option4_blocker_focus", "option4_blocker_guidance", "option4_blocker_opportunity", "option4_blocker_other"],
+    options: [
+      "codebase_dive_in",
+      "codebase_readme_first",
+      "codebase_trace_flow",
+      "codebase_ask_walkthrough",
+      "codebase_own_only",
+    ],
   },
   {
     type: "multi",
+    translationKey: "step4",
+    options: [
+      "habit_tests",
+      "habit_code_review",
+      "habit_refactor",
+      "habit_read_watch",
+      "habit_system_design",
+    ],
+  },
+  {
+    type: "single",
     translationKey: "step5",
-    options: ["option5_interest_backend", "option5_interest_frontend", "option5_interest_fullstack", "option5_interest_devops", "option5_interest_data"],
+    options: [
+      "feedback_fix_move_on",
+      "feedback_note_pattern",
+      "feedback_ask_why",
+      "feedback_discouraged",
+    ],
   },
   {
     type: "freetext",

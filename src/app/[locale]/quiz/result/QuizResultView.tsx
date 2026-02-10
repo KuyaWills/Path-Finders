@@ -5,34 +5,14 @@ import { useTranslations } from "next-intl";
 import { Link, useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { getQuizState } from "../QuizStore";
-import { Sparkles, Lock } from "lucide-react";
-
-type ProfileId = "focused_builder" | "broad_explorer" | "career_climber" | "steady_grower";
-
-function deriveProfileFallback(answers: Record<number, import("../QuizStore").QuizStepAnswer>): ProfileId {
-  const role = answers[0];
-  const time = answers[2];
-  const interests = answers[4];
-  const roleStr = typeof role === "string" ? role : "";
-  const timeStr = typeof time === "string" ? time : "";
-  const interestArr = Array.isArray(interests) ? interests : [];
-
-  if (roleStr.includes("senior") || roleStr.includes("mid")) return "career_climber";
-  if (interestArr.length >= 3) return "broad_explorer";
-  if (timeStr.includes("10") || timeStr.includes("15")) return "focused_builder";
-  return "steady_grower";
-}
-
-const LOADING_DURATION_MS = 2200;
-const PROGRESS_END = 98;
+import { Sparkles } from "lucide-react";
 
 export function QuizResultView() {
   const t = useTranslations("quiz");
   const tResult = useTranslations("quiz.result");
   const router = useRouter();
-  const [profile, setProfile] = useState<ProfileId | null>(null);
-  const [goal, setGoal] = useState<string>("");
-  const [customDescription, setCustomDescription] = useState<string | null>(null);
+  const [analysis, setAnalysis] = useState<string | null>(null);
+  const [plan, setPlan] = useState<string | null>(null);
   const [progress, setProgress] = useState(0);
   const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -42,16 +22,15 @@ export function QuizResultView() {
       router.replace("/quiz");
       return;
     }
-    const goalStr = typeof state.answers[5] === "string" ? state.answers[5] : "";
 
     let cancelled = false;
-
-    // Animate progress bar 0 -> PROGRESS_END over LOADING_DURATION_MS
+    const LOADING_MS = 2200;
+    const PROGRESS_END = 98;
     const start = Date.now();
     progressIntervalRef.current = setInterval(() => {
       if (cancelled) return;
       const elapsed = Date.now() - start;
-      const p = Math.min(PROGRESS_END, Math.round((elapsed / LOADING_DURATION_MS) * PROGRESS_END));
+      const p = Math.min(PROGRESS_END, Math.round((elapsed / LOADING_MS) * PROGRESS_END));
       setProgress(p);
     }, 50);
 
@@ -64,19 +43,29 @@ export function QuizResultView() {
         });
         const data = await res.json();
         if (cancelled) return;
-        if (res.ok && data.profile) {
-          setProfile(data.profile as ProfileId);
-          setCustomDescription(data.description ?? null);
+        if (res.ok && data.analysis) {
+          setAnalysis(data.analysis);
+          setPlan(
+            typeof data.plan === "string"
+              ? data.plan
+              : "Focus on one habit at a time: use the debugger, read docs when stuck, and ask \"why\" in code reviews."
+          );
         } else {
-          setProfile(deriveProfileFallback(state.answers));
-          setCustomDescription(null);
+          setAnalysis(
+            "Your answers show a mix of habits many developers have. There's always room to level up: using the debugger more, reading docs before searching, and treating code review as a learning conversation are habits that help."
+          );
+          setPlan(
+            "1. Use the debugger on your next bug.\n\n2. When stuck, read docs for 15 minutes before searching.\n\n3. Trace one user flow when learning a new codebase.\n\n4. Ask \"why\" when you get code review feedback."
+          );
         }
-        setGoal(goalStr);
       } catch {
         if (cancelled) return;
-        setProfile(deriveProfileFallback(state.answers));
-        setCustomDescription(null);
-        setGoal(goalStr);
+        setAnalysis(
+          "We couldn't run the full analysis right now. Here’s a solid default plan: use the debugger more, read docs when stuck, trace one flow in new codebases, and ask \"why\" in code reviews."
+        );
+        setPlan(
+          "1. Use the debugger on your next bug.\n\n2. Read official docs for 15 minutes before searching.\n\n3. Trace one user flow in the new repo.\n\n4. Ask reviewers why they suggested changes."
+        );
       } finally {
         if (progressIntervalRef.current) {
           clearInterval(progressIntervalRef.current);
@@ -95,10 +84,12 @@ export function QuizResultView() {
     };
   }, [router]);
 
-  if (profile === null) {
+  if (analysis === null) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center gap-6 px-4">
-        <p className="text-sm font-medium text-zinc-600">{t("calculatingProfile")}</p>
+        <p className="text-sm font-medium text-zinc-600">
+          {t("calculatingAnalysis")}
+        </p>
         <div className="w-full max-w-xs">
           <div className="h-2 w-full overflow-hidden rounded-full bg-zinc-200">
             <div
@@ -112,18 +103,12 @@ export function QuizResultView() {
     );
   }
 
-  const profileLabels: Record<ProfileId, string> = {
-    focused_builder: "Focused Builder",
-    broad_explorer: "Broad Explorer",
-    career_climber: "Career Climber",
-    steady_grower: "Steady Grower",
-  };
-  const profileDescs: Record<ProfileId, string> = {
-    focused_builder: "You invest serious time and want clear direction. We'll give you a structured path and daily drills that match your goals.",
-    broad_explorer: "You're curious across many areas. We'll help you connect the dots and prioritize without overwhelm.",
-    career_climber: "You're ready to level up. We'll focus on system design, ownership, and the habits that get you to the next role.",
-    steady_grower: "You're building consistency. We'll keep you on track with small, sustainable steps and regular check-ins.",
-  };
+  const planSteps = plan
+    ? plan
+        .split(/\n\n+/)
+        .map((s) => s.trim())
+        .filter(Boolean)
+    : [];
 
   return (
     <div className="min-h-screen bg-[#f5f5f5] px-4 py-8 sm:px-6">
@@ -133,21 +118,49 @@ export function QuizResultView() {
             <Sparkles className="h-5 w-5" />
             <span className="text-sm font-medium">{tResult("subtitle")}</span>
           </div>
-          <h1 className="mt-2 text-2xl font-bold text-zinc-900">{tResult("title")}</h1>
+          <h1 className="mt-2 text-2xl font-bold text-zinc-900">
+            {tResult("title")}
+          </h1>
 
-          {/* Minimal result: profile name + short teaser only */}
-          <div className="mt-6 rounded-xl bg-zinc-50 p-4">
-            <p className="font-semibold text-zinc-900">{profileLabels[profile]}</p>
-            <p className="mt-1 text-sm text-zinc-600">{tResult("minimalTeaser")}</p>
-          </div>
+          <section className="mt-6">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
+              {tResult("analysisHeading")}
+            </h2>
+            <div className="mt-2 rounded-xl bg-zinc-50 p-4">
+              <p className="whitespace-pre-line text-sm leading-relaxed text-zinc-700">
+                {analysis}
+              </p>
+            </div>
+          </section>
 
-          {/* Locked full analysis teaser */}
-          <div className="mt-4 flex items-center gap-2 rounded-xl border border-amber-200 bg-amber-50/80 p-4">
-            <Lock className="h-5 w-5 shrink-0 text-amber-600" />
-            <p className="text-sm text-zinc-600">{tResult("fullResultLocked")}</p>
-          </div>
+          <section className="mt-6">
+            <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
+              {tResult("planHeading")}
+            </h2>
+            <div className="mt-2 rounded-xl border border-[#2563eb]/20 bg-blue-50/50 p-4">
+              {planSteps.length > 0 ? (
+                <ol className="list-decimal space-y-3 pl-4">
+                  {planSteps.map((step, i) => (
+                    <li
+                      key={i}
+                      className="text-sm leading-relaxed text-zinc-800"
+                    >
+                      {step.replace(/^\d+\.\s*/, "")}
+                    </li>
+                  ))}
+                </ol>
+              ) : (
+                <p className="whitespace-pre-line text-sm leading-relaxed text-zinc-700">
+                  {plan}
+                </p>
+              )}
+            </div>
+          </section>
 
-          <Link href="/offer" className="mt-8 block">
+          <p className="mt-6 text-center text-xs text-zinc-500">
+            {tResult("unlockMore")}
+          </p>
+          <Link href="/offer" className="mt-4 block">
             <Button variant="primary" size="lg" className="w-full rounded-lg">
               {t("unlockFullPlan")}
             </Button>

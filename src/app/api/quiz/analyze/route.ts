@@ -2,52 +2,49 @@ import { NextResponse } from "next/server";
 
 export const runtime = "nodejs";
 
-const PROFILE_IDS = ["focused_builder", "broad_explorer", "career_climber", "steady_grower"] as const;
-export type AnalyzeProfileId = (typeof PROFILE_IDS)[number];
-
 // Human-readable labels for building the prompt (English)
 const LABELS: Record<string, string> = {
-  option1_role_junior: "Junior developer",
-  option1_role_mid: "Mid-level developer",
-  option1_role_senior: "Senior developer",
-  option1_role_student: "Student / bootcamp",
-  option1_role_other: "Other",
-  option2_improve_code: "Code quality",
-  option2_improve_system: "System design",
-  option2_improve_debug: "Debugging",
-  option2_improve_career: "Career growth",
-  option2_improve_confidence: "Confidence",
-  option3_time_1: "1–2 hours/week",
-  option3_time_3: "3–5 hours/week",
-  option3_time_5: "5–7 hours/week",
-  option3_time_10: "10+ hours/week",
-  option3_time_15: "15+ hours/week",
-  option4_blocker_time: "Not enough time",
-  option4_blocker_focus: "Don't know what to focus on",
-  option4_blocker_guidance: "Lack of guidance",
-  option4_blocker_opportunity: "No growth opportunities",
-  option4_blocker_other: "Other",
-  option5_interest_backend: "Backend",
-  option5_interest_frontend: "Frontend",
-  option5_interest_fullstack: "Full-stack",
-  option5_interest_devops: "DevOps / infra",
-  option5_interest_data: "Data / ML",
+  debug_console: "Add console.log and narrow it down",
+  debug_debugger: "Use the debugger (breakpoints)",
+  debug_stack_trace: "Read the stack trace and follow the code path",
+  debug_rubber_duck: "Explain to someone or a rubber duck first",
+  debug_search_error: "Search the error message and try fixes from the web",
+  stuck_google_first: "Google or search for a solution right away",
+  stuck_try_then_ask: "Try 30+ minutes on my own, then ask for help",
+  stuck_docs_first: "Read official docs or source code first",
+  stuck_ask_teammate: "Ask a teammate or mentor for direction",
+  stuck_take_break: "Take a break and come back later",
+  codebase_dive_in: "Dive in and make small changes to see what happens",
+  codebase_readme_first: "Read README and main entry points first",
+  codebase_trace_flow: "Trace one user flow or feature end-to-end",
+  codebase_ask_walkthrough: "Ask the team for a walkthrough or pairing",
+  codebase_own_only: "Rarely; I usually maintain my own code",
+  habit_tests: "Write tests for my code",
+  habit_code_review: "Do code reviews for others",
+  habit_refactor: "Refactor or improve existing code without being asked",
+  habit_read_watch: "Read technical blogs or watch talks",
+  habit_system_design: "Practice system design or algorithms",
+  feedback_fix_move_on: "Fix the comments and move on quickly",
+  feedback_note_pattern: "Note the pattern so I don't repeat it",
+  feedback_ask_why: "Ask why and discuss tradeoffs with the reviewer",
+  feedback_discouraged: "Feel discouraged and put the PR off",
 };
+
+const STEP_LABELS = [
+  "How they debug",
+  "What they do when stuck",
+  "How they learn a new codebase",
+  "Habits they do regularly",
+  "How they handle code review feedback",
+  "Career or skill goal (free text)",
+];
 
 function buildAnswersSummary(answers: Record<number, string | string[]>): string {
   const lines: string[] = [];
-  const stepLabels = [
-    "Current role",
-    "Want to improve",
-    "Time per week",
-    "Biggest blocker",
-    "Areas of interest",
-    "Career goal (free text)",
-  ];
   for (let i = 0; i <= 5; i++) {
     const v = answers[i];
     if (v == null) continue;
-    const label = stepLabels[i] ?? `Step ${i + 1}`;
+    const label = STEP_LABELS[i] ?? `Step ${i + 1}`;
     if (Array.isArray(v)) {
       const text = v.map((k) => LABELS[k] ?? k).join(", ");
       lines.push(`${label}: ${text}`);
@@ -59,18 +56,26 @@ function buildAnswersSummary(answers: Record<number, string | string[]>): string
   return lines.join("\n");
 }
 
-function deriveProfileFallback(answers: Record<number, string | string[]>): AnalyzeProfileId {
-  const role = answers[0];
-  const time = answers[2];
-  const interests = answers[4];
-  const roleStr = typeof role === "string" ? role : "";
-  const timeStr = typeof time === "string" ? time : "";
-  const interestArr = Array.isArray(interests) ? interests : [];
-
-  if (roleStr.includes("senior") || roleStr.includes("mid")) return "career_climber";
-  if (interestArr.length >= 3) return "broad_explorer";
-  if (timeStr.includes("10") || timeStr.includes("15")) return "focused_builder";
-  return "steady_grower";
+/** Fallback when OpenAI is not configured: generic analysis and plan */
+function buildFallbackResponse(answers: Record<number, string | string[]>): {
+  analysis: string;
+  plan: string;
+} {
+  const goal = typeof answers[5] === "string" ? answers[5] : "";
+  return {
+    analysis:
+      "Your answers show a mix of habits that many developers have. There's always room to level up: using the debugger more, reading docs before searching, tracing one flow when learning a codebase, and treating code review as a learning conversation are habits that separate strong developers.",
+    plan: [
+      "Practice using the debugger (breakpoints) on your next bug instead of only console.log.",
+      "When stuck, try reading the official docs or source for 15 minutes before searching the web.",
+      "Next time you join a codebase, trace one user flow or feature end-to-end before making changes.",
+      "Do at least one of: write tests, do a code review, or refactor a small area without being asked—each week.",
+      "When you get code review feedback, ask the reviewer why they suggested it; turn it into a short discussion.",
+      goal ? `Keep your goal in mind: \"${goal.slice(0, 80)}${goal.length > 80 ? "…" : ""}\"—break it into monthly and weekly steps.` : "Set one clear career or skill goal and break it into monthly steps.",
+    ]
+      .filter(Boolean)
+      .join("\n\n"),
+  };
 }
 
 export async function POST(req: Request) {
@@ -85,25 +90,28 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "answers must be an object" }, { status: 400 });
   }
 
+  const summary = buildAnswersSummary(answers);
   const apiKey = process.env.NEXT_OPENAI_API_KEY;
+
   if (!apiKey) {
-    const profile = deriveProfileFallback(answers);
-    return NextResponse.json({ profile, fallback: true });
+    return NextResponse.json({
+      ...buildFallbackResponse(answers),
+      fallback: true,
+    });
   }
 
-  const summary = buildAnswersSummary(answers);
+  const systemPrompt = `You are a developer career coach for junior and experienced developers. You will receive quiz answers about debugging, getting unstuck, learning codebases, habits, and code review.
 
-  const systemPrompt = `You are a developer career coach. Based on quiz answers, you must choose exactly ONE developer profile and optionally write a short personalized description.
+Your task:
+1. **Analysis** (2–4 short paragraphs): Interpret their answers. For each question, note what they chose and—where it makes sense—what a stronger or more effective choice would be and why. Be encouraging, not judgmental. Mention their stated career/skill goal if they gave one. Write in clear, concise English.
 
-The four profile types are:
-- focused_builder: Invests serious time, wants clear direction and structured path.
-- broad_explorer: Curious across many areas, needs help connecting the dots and prioritizing.
-- career_climber: Ready to level up; focus on system design, ownership, next role.
-- steady_grower: Building consistency; small, sustainable steps and regular check-ins.
+2. **Plan** (4–6 actionable steps): Give a concrete improvement plan to become a better programmer/developer. Each step should be specific and doable (e.g. "Use the debugger on your next bug" or "Trace one user flow in the new repo before changing code"). Order by impact. Reference their goal if they shared one.
 
-Respond with valid JSON only, no markdown. Format: {"profile":"<one of the four ids>","description":"<1-2 sentences personalized, or omit if not needed>"}`;
+Respond with valid JSON only, no markdown. Use this exact format:
+{"analysis":"<full analysis text>","plan":"<step 1>\\n\\n<step 2>\\n\\n<step 3>\\n\\n..."}
+Use \\n\\n to separate plan steps.`;
 
-  const userPrompt = `Quiz answers:\n${summary}\n\nReturn JSON with "profile" (one of: focused_builder, broad_explorer, career_climber, steady_grower) and optional "description".`;
+  const userPrompt = `Quiz answers:\n${summary}\n\nReturn JSON with "analysis" and "plan" as described.`;
 
   const res = await fetch("https://api.openai.com/v1/chat/completions", {
     method: "POST",
@@ -135,23 +143,26 @@ Respond with valid JSON only, no markdown. Format: {"profile":"<one of the four 
     return NextResponse.json({ error: "Empty AI response" }, { status: 502 });
   }
 
-  let parsed: { profile?: string; description?: string };
+  let parsed: { analysis?: string; plan?: string };
   try {
-    parsed = JSON.parse(raw) as { profile?: string; description?: string };
+    parsed = JSON.parse(raw) as { analysis?: string; plan?: string };
   } catch {
     return NextResponse.json({ error: "Invalid AI response" }, { status: 502 });
   }
 
-  const profile = parsed.profile?.trim();
-  if (!profile || !PROFILE_IDS.includes(profile as AnalyzeProfileId)) {
-    return NextResponse.json({ error: "Invalid profile from AI" }, { status: 502 });
+  const analysis =
+    typeof parsed.analysis === "string" ? parsed.analysis.trim() : "";
+  const plan = typeof parsed.plan === "string" ? parsed.plan.trim() : "";
+
+  if (!analysis) {
+    return NextResponse.json(
+      { error: "AI did not return analysis" },
+      { status: 502 }
+    );
   }
 
-  const description =
-    typeof parsed.description === "string" ? parsed.description.trim() : undefined;
-
   return NextResponse.json({
-    profile: profile as AnalyzeProfileId,
-    ...(description && { description }),
+    analysis,
+    plan: plan || "Focus on one habit at a time: debugging with the debugger, reading docs when stuck, and asking \"why\" in code reviews.",
   });
 }

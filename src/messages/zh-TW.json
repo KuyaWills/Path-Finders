@@ -14,55 +14,56 @@
     "submit": "查看結果",
     "calculating": "計算中…",
     "calculatingProfile": "正在計算你的開發者類型…",
+    "calculatingAnalysis": "正在分析你的回答…",
     "step1": {
-      "title": "你目前擔任什麼角色？",
-      "option1_role_junior": "初級開發者",
-      "option1_role_mid": "中級開發者",
-      "option1_role_senior": "資深開發者",
-      "option1_role_student": "學生 / 培訓中",
-      "option1_role_other": "其他"
+      "title": "當程式出錯時，你通常怎麼除錯？",
+      "debug_console": "加 console.log 慢慢縮小範圍",
+      "debug_debugger": "盡量用 debugger（中斷點）",
+      "debug_stack_trace": "看 stack trace 沿著程式路徑追",
+      "debug_rubber_duck": "先對別人或小黃鴨解釋問題",
+      "debug_search_error": "搜尋錯誤訊息並試網路上的解法"
     },
     "step2": {
-      "title": "你最想提升哪些方面？（可多選）",
-      "option2_improve_code": "程式品質",
-      "option2_improve_system": "系統設計",
-      "option2_improve_debug": "除錯",
-      "option2_improve_career": "職涯發展",
-      "option2_improve_confidence": "自信"
+      "title": "卡關時，你通常先做什麼？",
+      "stuck_google_first": "先 Google 或搜尋解法",
+      "stuck_try_then_ask": "自己先試 30 分鐘以上再問人",
+      "stuck_docs_first": "先看官方文件或原始碼",
+      "stuck_ask_teammate": "先問同事或導師方向",
+      "stuck_take_break": "先休息一下再回來"
     },
     "step3": {
-      "title": "每週能花多少時間學習？",
-      "option3_time_1": "1–2 小時",
-      "option3_time_3": "3–5 小時",
-      "option3_time_5": "5–7 小時",
-      "option3_time_10": "10+ 小時",
-      "option3_time_15": "15+ 小時"
+      "title": "你如何熟悉一個新專案程式碼？",
+      "codebase_dive_in": "直接改小地方看會怎樣",
+      "codebase_readme_first": "先讀 README 和主要進入點",
+      "codebase_trace_flow": "追一條使用者流程或功能從頭到尾",
+      "codebase_ask_walkthrough": "請團隊帶我走一遍或 pair",
+      "codebase_own_only": "很少；多半在維護自己的程式"
     },
     "step4": {
-      "title": "目前最大的阻礙是什麼？",
-      "option4_blocker_time": "時間不夠",
-      "option4_blocker_focus": "不知道該專注什麼",
-      "option4_blocker_guidance": "缺乏指導",
-      "option4_blocker_opportunity": "沒有成長機會",
-      "option4_blocker_other": "其他"
+      "title": "你平常會做哪些事？（可多選）",
+      "habit_tests": "寫測試",
+      "habit_code_review": "幫別人做 code review",
+      "habit_refactor": "主動重構或改進既有程式",
+      "habit_read_watch": "看技術文章或影片",
+      "habit_system_design": "練系統設計或演算法"
     },
     "step5": {
-      "title": "你對哪些領域有興趣？（可多選）",
-      "option5_interest_backend": "後端",
-      "option5_interest_frontend": "前端",
-      "option5_interest_fullstack": "全端",
-      "option5_interest_devops": "DevOps / 基礎設施",
-      "option5_interest_data": "資料 / 機器學習"
+      "title": "收到嚴格的 code review 時，你通常：",
+      "feedback_fix_move_on": "改完就繼續",
+      "feedback_note_pattern": "記住模式下次不犯",
+      "feedback_ask_why": "問為什麼、和 reviewer 討論取捨",
+      "feedback_discouraged": "會沮喪、先放著"
     },
     "step6": {
-      "title": "用一句話描述你的主要職涯目標？",
-      "placeholder": "例如：六個月內找到後端工程師工作"
+      "title": "用一句話說，你現在的職涯或技能目標是？",
+      "placeholder": "例如：六個月內找到後端工作，或把除錯練熟"
     },
     "result": {
-      "title": "你的開發者類型",
-      "subtitle": "根據你的回答，這是你的個人化類型。",
-      "minimalTeaser": "你的完整個人化分析已就緒。",
-      "fullResultLocked": "你的詳細分析、職涯目標與專屬計畫已就緒。解鎖即可查看。"
+      "title": "你的開發者分析",
+      "subtitle": "根據你的回答，這是你的個人化分析與計畫。",
+      "analysisHeading": "你的回答代表什麼",
+      "planHeading": "你的改進計畫",
+      "unlockMore": "解鎖每日提示、完整資源庫與依此計畫訂做的 AI 教練。"
     },
     "unlockFullPlan": "解鎖完整計畫"
   },

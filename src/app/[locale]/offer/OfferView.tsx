@@ -30,6 +30,8 @@ export function OfferView({
   const [error, setError] = useState<string | null>(null);
   const [clientUserId, setClientUserId] = useState<string | null>(null);
   const [selectedPlan, setSelectedPlan] = useState<PlanId>("lifetime");
+  const [purchasedPlan, setPurchasedPlan] = useState<PlanId | null>(null);
+  const [purchasedAt, setPurchasedAt] = useState<number | null>(null);
 
   const effectiveUserId = serverUserId ?? clientUserId;
 
@@ -59,8 +61,23 @@ export function OfferView({
         const data = await res.json().catch(() => ({}));
         if (cancelledEffect) return;
         if (res.ok && !data.error) {
+          const planId: PlanId =
+            data.planId === "starter" ? "starter" : "lifetime";
+          const now = Date.now();
+          if (typeof window !== "undefined") {
+            try {
+              window.localStorage.setItem(
+                "pathfinders_last_purchase",
+                JSON.stringify({ planId, at: now })
+              );
+            } catch {
+              // ignore storage errors
+            }
+          }
+          setPurchasedPlan(planId);
+          setPurchasedAt(now);
+          // Stay on this thank-you screen; user can click the button to go back to landing.
           setIsPremium(true);
-          router.replace("/offer");
         } else {
           setError(data.error ?? "Verification failed");
         }
@@ -90,7 +107,12 @@ export function OfferView({
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ planId: selectedPlan, cancelUrl: cancelUrl || undefined }),
+        body: JSON.stringify({
+          planId: selectedPlan,
+          cancelUrl: cancelUrl || undefined,
+          userId: session?.user?.id ?? undefined,
+          customerEmail: session?.user?.email ?? undefined,
+        }),
       });
       const data = await res.json().catch(() => ({}));
       if (res.status === 401 || (data.error && /sign up|log in|unauthorized/i.test(String(data.error)))) {
@@ -120,16 +142,47 @@ export function OfferView({
   }
 
   if (isPremium) {
+    const planMeta =
+      purchasedPlan === "starter"
+        ? { name: t("planStarterName"), price: t("planStarterPrice") }
+        : { name: t("planLifetimeName"), price: t("planLifetimePrice") };
+    const purchasedOn =
+      purchasedAt != null
+        ? new Date(purchasedAt).toLocaleDateString(undefined, {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          })
+        : null;
+
     return (
       <div className="min-h-screen bg-[#f5f5f5] px-4 py-8 sm:px-6">
         <div className="mx-auto max-w-lg">
           <div className="rounded-2xl border border-white bg-white p-8 shadow-sm text-center">
             <CheckCircle2 className="mx-auto h-14 w-14 text-emerald-500" />
             <h1 className="mt-4 text-2xl font-bold text-zinc-900">{t("unlocked")}</h1>
-            <p className="mt-2 text-zinc-600">You now have access to daily tips, the library, and the AI helper.</p>
-            <Link href="/app" className="mt-6 inline-block">
+            <p className="mt-2 text-zinc-600">
+              You now have access to daily tips and your personalized growth plan inside the app.
+            </p>
+            <div className="mt-6 rounded-xl border border-zinc-100 bg-zinc-50/80 p-4 text-left">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-zinc-500">
+                {t("orderSummaryTitle")}
+              </h2>
+              <p className="mt-2 text-sm font-medium text-zinc-900">
+                {planMeta.name} — {planMeta.price}
+              </p>
+              {purchasedOn && (
+                <p className="mt-1 text-xs text-zinc-600">
+                  Purchased on {purchasedOn}
+                </p>
+              )}
+            </div>
+            <p className="mt-4 text-xs text-zinc-500">
+              When you&apos;re ready, you can return to the main page below.
+            </p>
+            <Link href="/" className="mt-6 inline-block">
               <Button variant="primary" size="lg" className="rounded-lg">
-                {t("goToApp")}
+                Go to landing now
               </Button>
             </Link>
           </div>
@@ -227,14 +280,6 @@ export function OfferView({
                 t("proceedToCheckout")
               )}
             </Button>
-            {effectiveUserId && (
-              <Link
-                href="/app"
-                className="mt-3 block text-center text-sm text-zinc-500 hover:text-zinc-700"
-              >
-                Go to app (free features only)
-              </Link>
-            )}
           </div>
         </div>
       </div>

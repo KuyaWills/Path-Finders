@@ -32,9 +32,7 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const session = await stripe.checkout.sessions.retrieve(sessionId, {
-      expand: ["subscription"],
-    });
+    const session = await stripe.checkout.sessions.retrieve(sessionId);
 
     const userId = session.client_reference_id ?? session.metadata?.userId ?? body?.user_id ?? body?.userId;
 
@@ -45,86 +43,32 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    // One-time payment (mode === "payment"): check payment_status and set premium
-    if (session.mode === "payment") {
-      if (session.payment_status !== "paid") {
-        return new Response(
-          JSON.stringify({ error: "Payment not completed" }),
-          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
+    // For one-time payments, check payment_status and set premium.
+    // For any other mode (legacy/unsupported), we still mark the user as premium
+    // but we no longer touch a subscriptions table (which might not exist).
+    const planId = (session.metadata?.planId as string | undefined) ?? "lifetime";
 
-      const { error } = await supabase
-        .from("profiles")
-        .upsert({ id: userId, is_premium: true }, { onConflict: "id" });
-
-      if (error) {
-        console.error("Profiles upsert error:", error.message);
-        return new Response(
-          JSON.stringify({ error: error.message }),
-          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-
+    if (session.mode === "payment" && session.payment_status !== "paid") {
       return new Response(
-        JSON.stringify({ ok: true, success: true }),
-        { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
-    }
-
-    // Subscription mode (legacy): sync to subscriptions table
-    const subscription = session.subscription as Stripe.Subscription | null;
-    if (!subscription) {
-      return new Response(
-        JSON.stringify({ error: "No subscription on session" }),
+        JSON.stringify({ error: "Payment not completed" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    let status: "active" | "canceled" | "trialing" | "past_due" = "active";
-    if (subscription.status === "canceled" || subscription.status === "unpaid") status = "canceled";
-    else if (subscription.status === "past_due") status = "past_due";
-    else if (subscription.status === "trialing") status = "trialing";
-
-    const currentPeriodEnd = subscription.current_period_end
-      ? new Date(subscription.current_period_end * 1000).toISOString()
-      : null;
-
-    const row = {
-      user_id: userId,
-      stripe_customer_id: typeof session.customer === "string" ? session.customer : session.customer?.id ?? null,
-      stripe_subscription_id: subscription.id,
-      plan: session.metadata?.planId ?? session.metadata?.plan ?? "unknown",
-      status,
-      current_period_end: currentPeriodEnd,
-      updated_at: new Date().toISOString(),
-    };
-
-    const { data: existing } = await supabase
-      .from("subscriptions")
-      .select("id")
-      .eq("user_id", userId)
-      .maybeSingle();
-
-    const { error } = existing
-      ? await supabase.from("subscriptions").update(row).eq("user_id", userId)
-      : await supabase.from("subscriptions").insert(row);
+    const { error } = await supabase
+      .from("profiles")
+      .upsert({ id: userId, is_premium: true }, { onConflict: "id" });
 
     if (error) {
-      console.error("Supabase subscriptions error:", error.message);
+      console.error("Profiles upsert error:", error.message);
       return new Response(
         JSON.stringify({ error: error.message }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Grant premium access in profiles so the app shows unlocked
-    if (status === "active" || status === "trialing") {
-      await supabase.from("profiles").upsert({ id: userId, is_premium: true }, { onConflict: "id" });
-    }
-
     return new Response(
-      JSON.stringify({ ok: true, success: true, session: { id: session.id } }),
+      JSON.stringify({ ok: true, success: true, planId }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   } catch (err) {

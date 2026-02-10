@@ -44,9 +44,12 @@ export default function LoginForm() {
   useEffect(() => {
     const supabase = createClient();
     supabase.auth.getUser().then(({ data: { user } }) => {
-      if (user) router.replace("/quiz");
+      if (user) {
+        const redirect = searchParams.get("redirect");
+        router.replace(redirect && redirect.startsWith("/") ? redirect : "/quiz");
+      }
     });
-  }, [router]);
+  }, [router, searchParams]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -75,8 +78,13 @@ export default function LoginForm() {
     setError(null);
     setLoading(true);
     try {
-      const redirectTo = `${window.location.origin}/${locale}/quiz`;
-      const result = await verifyOtp(email, code, redirectTo);
+      const redirectPath = searchParams.get("redirect") ?? "/quiz";
+      const path = redirectPath.startsWith("/") ? redirectPath : `/${redirectPath}`;
+      // After login, send users to quiz from the start with answers cleared (via new_session flag)
+      const basePath = `/${locale}${path}`;
+      const nextPath = path === "/quiz" ? `${basePath}?new_session=1` : basePath;
+      const callbackUrl = `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`;
+      const result = await verifyOtp(email, code, callbackUrl);
       if (result.success) {
         window.location.href = result.actionLink;
       } else {

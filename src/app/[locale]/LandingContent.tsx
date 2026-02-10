@@ -1,9 +1,11 @@
 "use client";
 
 import { useTranslations, useLocale } from "next-intl";
-import { Link } from "@/i18n/navigation";
+import { Link, useRouter } from "@/i18n/navigation";
 import { ChevronRight, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { createClient } from "@/lib/supabase/client";
+import { useEffect, useState } from "react";
 
 /** Curly brace { - dev/code symbol */
 function CodeBrace({
@@ -60,9 +62,55 @@ const floatingBraces = [
 
 export function LandingContent() {
   const t = useTranslations("landing");
+  const tOffer = useTranslations("offer");
   const locale = useLocale();
+  const router = useRouter();
   const nextLocale = locale === "en" ? "zh-TW" : "en";
   const label = locale === "en" ? "中文" : "EN";
+  const [quizLoading, setQuizLoading] = useState(false);
+  const [purchaseBanner, setPurchaseBanner] = useState<{ planId: string; at?: number } | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const raw = window.localStorage.getItem("pathfinders_last_purchase");
+      if (!raw) return;
+      window.localStorage.removeItem("pathfinders_last_purchase");
+      const parsed = JSON.parse(raw) as { planId?: string; at?: number };
+      setPurchaseBanner({ planId: parsed.planId ?? "lifetime", at: parsed.at });
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const planLabel = purchaseBanner
+    ? purchaseBanner.planId === "starter"
+      ? `${tOffer("planStarterName")} — ${tOffer("planStarterPrice")}`
+      : `${tOffer("planLifetimeName")} — ${tOffer("planLifetimePrice")}`
+    : "";
+  const purchasedOn =
+    purchaseBanner?.at != null
+      ? new Date(purchaseBanner.at).toLocaleDateString(undefined, {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        })
+      : null;
+
+  const handleStartQuiz = async () => {
+    setQuizLoading(true);
+    try {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        router.push("/quiz");
+      } else {
+        router.push("/login?redirect=/quiz");
+      }
+    } finally {
+      setQuizLoading(false);
+    }
+  };
 
   return (
     <div className="relative flex min-h-screen flex-col overflow-hidden">
@@ -152,6 +200,21 @@ export function LandingContent() {
       </header>
 
       <main className="relative z-10 flex flex-1 flex-col items-center justify-center px-4 py-10 text-center sm:px-6">
+        {purchaseBanner && (
+          <div className="pointer-events-none fixed top-4 left-0 right-0 z-20 flex justify-center px-4 sm:px-0">
+            <div className="pointer-events-auto max-w-md rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-left text-sm text-emerald-800 shadow-lg">
+              <p className="font-semibold">Thank you for your purchase!</p>
+              <p className="mt-1 text-xs text-emerald-900">
+                Order summary: {planLabel}
+              </p>
+              {purchasedOn && (
+                <p className="mt-0.5 text-[11px] text-emerald-900/80">
+                  Purchased on {purchasedOn}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
         <h1 className="max-w-2xl text-3xl font-bold leading-tight text-zinc-900 sm:text-4xl md:text-5xl">
           {t("title")}
         </h1>
@@ -159,16 +222,22 @@ export function LandingContent() {
           {t("subtitle")}
         </p>
         <div className="mt-8 flex flex-col gap-4 sm:mt-10 sm:flex-row">
-          <Link href="/quiz">
-            <Button
-              variant="primary"
-              size="lg"
-              className="w-full gap-2 rounded-lg px-8 py-3 text-base shadow-sm sm:w-auto"
-            >
-              {t("ctaQuiz")}
-              <ChevronRight className="h-5 w-5" />
-            </Button>
-          </Link>
+          <Button
+            variant="primary"
+            size="lg"
+            className="w-full gap-2 rounded-lg px-8 py-3 text-base shadow-sm sm:w-auto"
+            onClick={handleStartQuiz}
+            disabled={quizLoading}
+          >
+            {quizLoading ? (
+              <span className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+            ) : (
+              <>
+                {t("ctaQuiz")}
+                <ChevronRight className="h-5 w-5" />
+              </>
+            )}
+          </Button>
           <Link href="/signup">
             <Button
               variant="outline"

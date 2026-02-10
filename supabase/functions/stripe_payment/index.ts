@@ -32,40 +32,27 @@ Deno.serve(async (req: Request) => {
     // Normalize to only supported plans
     const planId = plan === "starter" ? "starter" : "lifetime";
 
+    // Use customer email from body, or fetch from Supabase Auth when we have userId (single source of truth)
+    let customerEmail = body.customerEmail?.trim() || undefined;
+    if (userId && !customerEmail) {
+      const { data: { user } } = await supabase.auth.admin.getUserById(userId);
+      if (user?.email) customerEmail = user.email;
+    }
+
     const originHeader = req.headers.get("origin");
     const origin =
       originHeader && originHeader !== "null"
         ? originHeader
         : Deno.env.get("APP_URL") || "http://localhost:3000";
 
-    // Prevent creating new subscription if user already has an active one
-    if (userId) {
-      const { data: sub } = await supabase
-        .from("subscriptions")
-        .select("status, current_period_end")
-        .eq("user_id", userId)
-        .maybeSingle();
-
-      const now = new Date();
-      const periodEnd = sub?.current_period_end ? new Date(sub.current_period_end) : null;
-      const isActive = sub?.status === "active" && (!periodEnd || periodEnd > now);
-
-      if (isActive) {
-        return new Response(
-          JSON.stringify({ error: "User already has an active subscription" }),
-          { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
-        );
-      }
-    }
-
-    // Stripe price mapping: Starter ($10) and Lifetime ($15)
+    // Stripe price mapping: Starter and Lifetime (one-time)
     const priceMap: Record<string, string | undefined> = {
       starter: Deno.env.get("STRIPE_PRICE_STARTER"),
       lifetime: Deno.env.get("STRIPE_PRICE_LIFETIME"),
     };
     const priceId = priceMap[planId]?.trim();
 
-    // Fallback amounts in cents per month if no price ID ($10 = 1000, $15 = 1500)
+    // Fallback amounts in cents if no price ID ($10 = 1000, $15 = 1500)
     const planAmounts: Record<string, number> = { starter: 1000, lifetime: 1500 };
     const unitAmount = planAmounts[planId] ?? 1500;
 
@@ -73,27 +60,26 @@ Deno.serve(async (req: Request) => {
     const successUrl = body.successUrl || `${origin}/offer?session_id={CHECKOUT_SESSION_ID}`;
     const cancelUrl = body.cancelUrl || `${origin}/offer`;
 
-    // Build Stripe line item (monthly subscription)
+    // Build Stripe line item (one-time payment)
     const lineItem = priceId?.startsWith("price_")
       ? { price: priceId, quantity: 1 }
       : {
           price_data: {
             currency: "usd",
-            product_data: { name: planId === "starter" ? "Starter (monthly)" : "Lifetime (monthly)" },
+            product_data: { name: planId === "starter" ? "Starter" : "Lifetime" },
             unit_amount: unitAmount,
-            recurring: { interval: "month" },
           },
           quantity: 1,
         };
 
-    // Create Stripe Checkout session (monthly subscription)
+    // Create Stripe Checkout session (one-time payment)
     const session = await stripe.checkout.sessions.create({
-      mode: "subscription",
+      mode: "payment",
       line_items: [lineItem],
       success_url: successUrl,
       cancel_url: cancelUrl,
       metadata: { planId, ...(userId && { userId }) },
-      ...(body.customerEmail && { customer_email: body.customerEmail }),
+      ...(customerEmail && { customer_email: customerEmail }),
       ...(userId && { client_reference_id: userId }),
     });
 

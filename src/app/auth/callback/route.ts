@@ -8,17 +8,25 @@ import { NextResponse } from "next/server";
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get("code");
+  const tokenHash = searchParams.get("token_hash");
   const next = searchParams.get("next") ?? "/";
 
+  const supabase = await createClient();
+
+  if (tokenHash) {
+    const { error } = await supabase.auth.verifyOtp({
+      type: "magiclink",
+      token_hash: tokenHash,
+    });
+    if (!error) {
+      return NextResponse.redirect(buildAuthRedirectUrl(origin, next));
+    }
+  }
+
   if (code) {
-    try {
-      const supabase = await createClient();
-      const { error } = await supabase.auth.exchangeCodeForSession(code);
-      if (!error) {
-        return NextResponse.redirect(buildAuthRedirectUrl(origin, next));
-      }
-    } catch {
-      // Fall through to error redirect
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    if (!error) {
+      return NextResponse.redirect(buildAuthRedirectUrl(origin, next));
     }
   }
 

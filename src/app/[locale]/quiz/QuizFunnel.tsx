@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
@@ -15,18 +16,38 @@ import {
 } from "./QuizStore";
 import { QUIZ_STEPS } from "./quizSteps";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
 
 export function QuizFunnel() {
   const t = useTranslations("quiz");
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [state, setState] = useState<QuizState>({ step: 0, answers: {}, completedAt: null });
   const [mounted, setMounted] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
+    const supabase = createClient();
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) {
+        router.replace("/login?redirect=/quiz");
+        return;
+      }
+      setAuthChecked(true);
+    });
+  }, [router]);
+
+  useEffect(() => {
+    if (!authChecked) return;
+    // After login/signup we redirect with new_session=1 so user starts quiz from step 1 with no answers
+    if (searchParams.get("new_session") === "1") {
+      clearQuizState();
+      router.replace("/quiz", { scroll: false });
+    }
     setState(getQuizState());
     setMounted(true);
-  }, []);
+  }, [authChecked, searchParams, router]);
 
   const persist = useCallback((newState: QuizState) => {
     setState(newState);
@@ -81,7 +102,7 @@ export function QuizFunnel() {
     return false;
   };
 
-  if (!mounted) {
+  if (!authChecked || !mounted) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#2563eb] border-t-transparent" />

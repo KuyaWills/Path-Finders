@@ -14,55 +14,56 @@
     "submit": "See my result",
     "calculating": "Calculating…",
     "calculatingProfile": "Calculating your profile…",
+    "calculatingAnalysis": "Analyzing your answers…",
     "step1": {
-      "title": "What's your current role?",
-      "option1_role_junior": "Junior developer",
-      "option1_role_mid": "Mid-level developer",
-      "option1_role_senior": "Senior developer",
-      "option1_role_student": "Student / bootcamp",
-      "option1_role_other": "Other"
+      "title": "When something breaks, how do you usually debug?",
+      "debug_console": "I add console.log and try to narrow it down",
+      "debug_debugger": "I use the debugger (breakpoints) when I can",
+      "debug_stack_trace": "I read the stack trace and follow the code path",
+      "debug_rubber_duck": "I explain the problem to someone or a rubber duck first",
+      "debug_search_error": "I search the error message and try fixes from the web"
     },
     "step2": {
-      "title": "What do you want to improve most?",
-      "option2_improve_code": "Code quality",
-      "option2_improve_system": "System design",
-      "option2_improve_debug": "Debugging",
-      "option2_improve_career": "Career growth",
-      "option2_improve_confidence": "Confidence"
+      "title": "When you're stuck on a task, what do you do first?",
+      "stuck_google_first": "Google or search for a solution right away",
+      "stuck_try_then_ask": "Try for 30+ minutes on my own, then ask for help",
+      "stuck_docs_first": "Read the official docs or source code first",
+      "stuck_ask_teammate": "Ask a teammate or mentor for direction",
+      "stuck_take_break": "Take a break and come back later"
     },
     "step3": {
-      "title": "How much time can you spend learning per week?",
-      "option3_time_1": "1–2 hours",
-      "option3_time_3": "3–5 hours",
-      "option3_time_5": "5–7 hours",
-      "option3_time_10": "10+ hours",
-      "option3_time_15": "15+ hours"
+      "title": "How do you approach learning a new codebase?",
+      "codebase_dive_in": "I dive in and make small changes to see what happens",
+      "codebase_readme_first": "I read the README and main entry points first",
+      "codebase_trace_flow": "I trace one user flow or feature end-to-end",
+      "codebase_ask_walkthrough": "I ask the team for a walkthrough or pairing session",
+      "codebase_own_only": "I rarely do; I'm usually maintaining my own code"
     },
     "step4": {
-      "title": "What's your biggest blocker right now?",
-      "option4_blocker_time": "Not enough time",
-      "option4_blocker_focus": "Don't know what to focus on",
-      "option4_blocker_guidance": "Lack of guidance",
-      "option4_blocker_opportunity": "No growth opportunities",
-      "option4_blocker_other": "Other"
+      "title": "Which of these do you do regularly? (select all that apply)",
+      "habit_tests": "Write tests for my code",
+      "habit_code_review": "Do code reviews for others",
+      "habit_refactor": "Refactor or improve existing code without being asked",
+      "habit_read_watch": "Read technical blogs or watch talks",
+      "habit_system_design": "Practice system design or algorithms"
     },
     "step5": {
-      "title": "Which areas interest you? (select all that apply)",
-      "option5_interest_backend": "Backend",
-      "option5_interest_frontend": "Frontend",
-      "option5_interest_fullstack": "Full-stack",
-      "option5_interest_devops": "DevOps / infra",
-      "option5_interest_data": "Data / ML"
+      "title": "When you get critical code review feedback, you usually:",
+      "feedback_fix_move_on": "Fix the comments and move on quickly",
+      "feedback_note_pattern": "Note the pattern so I don't repeat it",
+      "feedback_ask_why": "Ask why and discuss tradeoffs with the reviewer",
+      "feedback_discouraged": "Feel discouraged and put the PR off"
     },
     "step6": {
-      "title": "In one sentence, what's your main career goal?",
-      "placeholder": "e.g. Land a backend role in 6 months"
+      "title": "In one sentence, what's your main career or skill goal right now?",
+      "placeholder": "e.g. Land a backend role in 6 months, or get better at debugging"
     },
     "result": {
-      "title": "Your developer profile",
-      "subtitle": "Based on your answers, here’s your personalized profile.",
-      "minimalTeaser": "Your full personalized analysis is ready.",
-      "fullResultLocked": "Your detailed breakdown, career goal, and tailored plan are ready. Unlock to see them."
+      "title": "Your developer analysis",
+      "subtitle": "Based on your answers, here’s your personalized analysis and plan.",
+      "analysisHeading": "What your answers say",
+      "planHeading": "Your improvement plan",
+      "unlockMore": "Unlock daily tips, full library, and AI coaching tailored to this plan."
     },
     "unlockFullPlan": "Unlock your full plan"
   },
@@ -70,7 +71,7 @@
     "title": "Unlock your full plan",
     "subtitle": "Get daily tips, the full library, and AI coaching tailored to your profile.",
     "cta": "Unlock premium",
-    "unlocked": "You're in! Premium unlocked.",
+    "unlocked": "Thank you for your purchase! Premium unlocked.",
     "planName": "Junior Developer Growth Plan",
     "planDescription": "Everything you need to build consistency and level up. One-time payment, lifetime access.",
     "planFeature1": "Daily personalized tips and drills",
