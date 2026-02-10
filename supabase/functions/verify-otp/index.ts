@@ -75,12 +75,12 @@ Deno.serve(async (req) => {
       .update({ used_at: new Date().toISOString() })
       .eq("id", rows[0].id);
 
-    // Generate magic link to establish Supabase session (creates user if needed).
-    // We use hashed_token and build our own callback URL because action_link uses
-    // implicit flow (tokens in hash), which the server callback cannot read.
+    // Generate magic link to establish Supabase session (creates user if needed)
+    const redirectUrl = redirectTo && redirectTo.startsWith("http") ? redirectTo : undefined;
     const { data: linkData, error: linkError } = await supabase.auth.admin.generateLink({
       type: "magiclink",
       email: normalizedEmail,
+      options: redirectUrl ? { redirectTo: redirectUrl } : undefined,
     });
 
     if (linkError) {
@@ -88,22 +88,10 @@ Deno.serve(async (req) => {
       throw linkError;
     }
 
-    const hashedToken =
-      (linkData?.properties as { hashed_token?: string } | undefined)?.hashed_token ??
-      (linkData?.properties as { HashedToken?: string } | undefined)?.HashedToken;
-    if (!hashedToken) {
-      throw new Error("No hashed_token in generateLink response");
+    const actionLink = linkData?.properties?.action_link;
+    if (!actionLink) {
+      throw new Error("No action link returned");
     }
-
-    const baseUrl =
-      redirectTo && redirectTo.startsWith("http")
-        ? redirectTo
-        : null;
-    if (!baseUrl) {
-      throw new Error("redirectTo (callback URL) is required");
-    }
-    const separator = baseUrl.includes("?") ? "&" : "?";
-    const actionLink = `${baseUrl}${separator}token_hash=${encodeURIComponent(hashedToken)}`;
 
     return new Response(
       JSON.stringify({ success: true, actionLink }),
