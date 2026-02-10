@@ -7,6 +7,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "@/i18n/navigation";
 import { Mail, Loader2, Sparkles } from "lucide-react";
 import { sendOtp, verifyOtp } from "@/services/auth";
+import { clearQuizState } from "../quiz/QuizStore";
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -86,6 +87,8 @@ export default function LoginForm() {
       const callbackUrl = `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`;
       const result = await verifyOtp(email, code, callbackUrl);
       if (result.success) {
+        // Clear any previous quiz progress so user always starts fresh after login
+        clearQuizState();
         window.location.href = result.actionLink;
       } else {
         const msg = result.error ?? "Invalid code.";
