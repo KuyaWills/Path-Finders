@@ -171,12 +171,18 @@ export function LandingContent() {
       `}</style>
 
       <header className="relative z-10 flex items-center justify-between px-4 py-4 sm:px-6">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#e07a5f] text-white font-semibold shadow-sm">
+        <Link href="/" className="flex items-center gap-3">
+          <div
+            className="flex h-10 w-10 items-center justify-center bg-[#5b6cf2] text-white font-bold"
+            style={{
+              clipPath:
+                "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)",
+            }}
+          >
             PF
           </div>
           <span className="text-xl font-bold text-zinc-900">{t("brand")}</span>
-        </div>
+        </Link>
         <nav className="flex items-center gap-2 sm:gap-4">
           <Link
             href="/"

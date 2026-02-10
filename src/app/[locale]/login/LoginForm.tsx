@@ -119,7 +119,7 @@ export default function LoginForm() {
       <div className="absolute -bottom-40 -right-40 h-80 w-80 rounded-full bg-blue-200/30 blur-3xl" />
 
       <div className="relative z-10 flex flex-col items-center">
-        <div className="mb-10 flex flex-col items-center text-center">
+        <Link href="/" className="mb-10 flex flex-col items-center text-center">
           <div
             className="mb-4 flex h-14 w-14 items-center justify-center bg-[#5b6cf2] text-white font-bold"
             style={{ clipPath: "polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)" }}
@@ -128,7 +128,7 @@ export default function LoginForm() {
           </div>
           <h1 className="text-2xl font-bold text-zinc-800">PathFinders</h1>
           <p className="mt-1 text-sm text-zinc-500">Figure out your career bottlenecks and get a daily growth plan</p>
-        </div>
+        </Link>
 
         <div className="w-full max-w-[420px] rounded-2xl border border-white/60 bg-white/90 p-8 shadow-xl shadow-slate-200/50 backdrop-blur-sm">
           <div className="text-center">
