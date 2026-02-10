@@ -180,11 +180,23 @@ export function OfferView({
             <p className="mt-4 text-xs text-zinc-500">
               When you&apos;re ready, you can return to the main page below.
             </p>
-            <Link href="/" className="mt-6 inline-block">
-              <Button variant="primary" size="lg" className="rounded-lg">
-                Go to landing now
-              </Button>
-            </Link>
+            <Button
+              variant="primary"
+              size="lg"
+              className="mt-6 rounded-lg"
+              onClick={async () => {
+                try {
+                  const supabase = createClient();
+                  await supabase.auth.signOut();
+                } catch {
+                  // ignore sign-out errors
+                } finally {
+                  router.push("/");
+                }
+              }}
+            >
+              Go to landing now
+            </Button>
           </div>
         </div>
       </div>

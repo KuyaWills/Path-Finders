@@ -23,7 +23,10 @@ export default async function OfferPage({ params, searchParams }: Props) {
     redirect(`/${locale}/login?redirect=/offer`);
   }
 
-  const isPremium = await checkPremium(supabase, user.id);
+  // Only consider premium state immediately after a successful Stripe checkout,
+  // when we have a session_id. On normal visits, always show the unlock view
+  // even if the user previously purchased.
+  const isPremium = sessionId ? await checkPremium(supabase, user.id) : false;
 
   return (
     <OfferView
