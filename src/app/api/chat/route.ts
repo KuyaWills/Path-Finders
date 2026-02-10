@@ -65,8 +65,8 @@ export async function POST(req: Request) {
     );
   }
 
-  const reader = stream.body;
-  if (!reader) {
+  const body = stream.body;
+  if (!body) {
     return NextResponse.json({ error: "No body" }, { status: 502 });
   }
 
@@ -74,6 +74,7 @@ export async function POST(req: Request) {
   const readable = new ReadableStream({
     async start(controller) {
       const decoder = new TextDecoder();
+      const reader = body.getReader();
       try {
         for (;;) {
           const { done, value } = await reader.read();
