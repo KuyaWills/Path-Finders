@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { setRequestLocale } from "next-intl/server";
 import { createClient } from "@/lib/supabase/server";
 import { OfferView } from "./OfferView";
@@ -11,15 +12,23 @@ export default async function OfferPage({ params, searchParams }: Props) {
   const { locale } = await params;
   const { session_id: sessionId, cancelled } = await searchParams;
   setRequestLocale(locale);
+
   const supabase = await createClient();
-  const { data: { user } } = await supabase.auth.getUser();
-  const isPremium = user
-    ? await checkPremium(supabase, user.id)
-    : false;
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // Protect the offer page: require login before viewing or purchasing.
+  if (!user) {
+    redirect(`/${locale}/login?redirect=/offer`);
+  }
+
+  const isPremium = await checkPremium(supabase, user.id);
+
   return (
     <OfferView
       isPremium={isPremium}
-      userId={user?.id}
+      userId={user.id}
       sessionId={sessionId ?? null}
       cancelled={!!cancelled}
     />
