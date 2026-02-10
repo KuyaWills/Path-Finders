@@ -178,25 +178,13 @@ export function OfferView({
               )}
             </div>
             <p className="mt-4 text-xs text-zinc-500">
-              When you&apos;re ready, you can return to the main page below.
+              You can go to the app below to access daily tips, the library, and AI coaching.
             </p>
-            <Button
-              variant="primary"
-              size="lg"
-              className="mt-6 rounded-lg"
-              onClick={async () => {
-                try {
-                  const supabase = createClient();
-                  await supabase.auth.signOut();
-                } catch {
-                  // ignore sign-out errors
-                } finally {
-                  router.push("/");
-                }
-              }}
-            >
-              Go to landing now
-            </Button>
+            <Link href="/app">
+              <Button variant="primary" size="lg" className="mt-6 rounded-lg w-full">
+                {t("goToApp")}
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
@@ -275,7 +263,7 @@ export function OfferView({
           {error && (
             <p className="mt-3 text-sm text-red-600">{error}</p>
           )}
-          <div className="mt-6">
+          <div className="mt-6 space-y-3">
             <Button
               variant="primary"
               size="lg"
@@ -292,6 +280,33 @@ export function OfferView({
                 t("proceedToCheckout")
               )}
             </Button>
+            {process.env.NEXT_PUBLIC_SIMULATE_PREMIUM_UNLOCK === "1" && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full rounded-lg border-dashed border-amber-300 text-amber-800 hover:bg-amber-50"
+                onClick={async () => {
+                  setLoading(true);
+                  setError(null);
+                  try {
+                    const res = await fetch("/api/premium/unlock", { method: "POST" });
+                    if (res.ok) {
+                      router.push("/app");
+                    } else {
+                      const data = await res.json().catch(() => ({}));
+                      setError(data.error ?? "Failed to unlock");
+                    }
+                  } catch {
+                    setError("Something went wrong");
+                  } finally {
+                    setLoading(false);
+                  }
+                }}
+                disabled={loading}
+              >
+                Unlock for testing (no payment)
+              </Button>
+            )}
           </div>
         </div>
       </div>

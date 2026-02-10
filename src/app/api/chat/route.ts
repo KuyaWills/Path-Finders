@@ -9,13 +9,17 @@ export async function POST(req: Request) {
   if (!user) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("is_premium")
-    .eq("id", user.id)
-    .maybeSingle();
-  if (!profile?.is_premium) {
-    return NextResponse.json({ error: "Premium required" }, { status: 403 });
+  // When SIMULATE_PREMIUM=1, allow any authenticated user (for testing without Stripe)
+  const simulatePremium = process.env.SIMULATE_PREMIUM === "1";
+  if (!simulatePremium) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("is_premium")
+      .eq("id", user.id)
+      .maybeSingle();
+    if (!profile?.is_premium) {
+      return NextResponse.json({ error: "Premium required" }, { status: 403 });
+    }
   }
 
   let requestBody: { message?: string };

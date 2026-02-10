@@ -60,6 +60,10 @@ SEND_EMAIL_HOOK_SECRET=your_send_email_hook_secret
 
 # App base URL (used by Supabase functions for success/cancel URLs)
 APP_URL=http://localhost:3000
+
+# Optional: simulate premium without Stripe (for testing)
+# SIMULATE_PREMIUM=1              # Chat API treats all authenticated users as premium
+# NEXT_PUBLIC_SIMULATE_PREMIUM_UNLOCK=1  # Shows "Unlock for testing" button on offer page
 ```
 
 > Supabase Edge Functions use environment variables managed in the Supabase dashboard. Keep values in `.env` for local dev, but also set them in Supabase under Project Settings → API / Functions.
@@ -89,6 +93,10 @@ supabase db push
 ```
 
 Alternatively, you can run individual `.sql` files manually via the Supabase SQL editor if you prefer.
+
+### 3.3 Seed library content
+
+To populate the Library page with sample content, run `supabase/seed_library.sql` in the Supabase SQL Editor (Dashboard → SQL Editor → New query → Paste the file contents → Run).
 
 ---
 
