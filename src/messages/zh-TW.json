@@ -1,0 +1,115 @@
+{
+  "landing": {
+    "title": "找出你的職涯瓶頸，獲得每日個人化開發成長計畫。",
+    "subtitle": "為初級開發者打造。完成簡短測驗、發現你的類型，並獲得量身訂做的每日指引。",
+    "ctaQuiz": "開始測驗",
+    "getStarted": "立即開始",
+    "logIn": "登入",
+    "brand": "PathFinders"
+  },
+  "quiz": {
+    "progress": "第 {current} 步，共 {total} 步",
+    "next": "下一步",
+    "back": "上一步",
+    "submit": "查看結果",
+    "calculating": "計算中…",
+    "calculatingProfile": "正在計算你的開發者類型…",
+    "step1": {
+      "title": "你目前擔任什麼角色？",
+      "option1_role_junior": "初級開發者",
+      "option1_role_mid": "中級開發者",
+      "option1_role_senior": "資深開發者",
+      "option1_role_student": "學生 / 培訓中",
+      "option1_role_other": "其他"
+    },
+    "step2": {
+      "title": "你最想提升哪些方面？（可多選）",
+      "option2_improve_code": "程式品質",
+      "option2_improve_system": "系統設計",
+      "option2_improve_debug": "除錯",
+      "option2_improve_career": "職涯發展",
+      "option2_improve_confidence": "自信"
+    },
+    "step3": {
+      "title": "每週能花多少時間學習？",
+      "option3_time_1": "1–2 小時",
+      "option3_time_3": "3–5 小時",
+      "option3_time_5": "5–7 小時",
+      "option3_time_10": "10+ 小時",
+      "option3_time_15": "15+ 小時"
+    },
+    "step4": {
+      "title": "目前最大的阻礙是什麼？",
+      "option4_blocker_time": "時間不夠",
+      "option4_blocker_focus": "不知道該專注什麼",
+      "option4_blocker_guidance": "缺乏指導",
+      "option4_blocker_opportunity": "沒有成長機會",
+      "option4_blocker_other": "其他"
+    },
+    "step5": {
+      "title": "你對哪些領域有興趣？（可多選）",
+      "option5_interest_backend": "後端",
+      "option5_interest_frontend": "前端",
+      "option5_interest_fullstack": "全端",
+      "option5_interest_devops": "DevOps / 基礎設施",
+      "option5_interest_data": "資料 / 機器學習"
+    },
+    "step6": {
+      "title": "用一句話描述你的主要職涯目標？",
+      "placeholder": "例如：六個月內找到後端工程師工作"
+    },
+    "result": {
+      "title": "你的開發者類型",
+      "subtitle": "根據你的回答，這是你的個人化類型。",
+      "minimalTeaser": "你的完整個人化分析已就緒。",
+      "fullResultLocked": "你的詳細分析、職涯目標與專屬計畫已就緒。解鎖即可查看。"
+    },
+    "unlockFullPlan": "解鎖完整計畫"
+  },
+  "offer": {
+    "title": "解鎖完整計畫",
+    "subtitle": "取得每日提示、完整資源庫，以及依你的類型訂做的 AI 教練。",
+    "cta": "解鎖進階版",
+    "unlocked": "已解鎖進階版。",
+    "planName": "初級開發者成長計畫",
+    "planDescription": "建立習慣、持續成長所需的一切。一次付費，終身使用。",
+    "planFeature1": "每日個人化提示與練習",
+    "planFeature2": "完整資源庫（程式碼、系統設計、除錯）",
+    "planFeature3": "依測驗結果訂做的 AI 教練",
+    "planFeature4": "職涯目標追蹤與每週檢視",
+    "orderSummaryTitle": "訂單摘要",
+    "orderSummaryPlan": "完整計畫 — 終身使用",
+    "proceedToCheckout": "前往結帳",
+    "goToApp": "前往應用",
+    "paymentCancelled": "已取消付款。您可以隨時再次結帳。",
+    "choosePlan": "選擇方案",
+    "planStarterName": "入門方案",
+    "planStarterPrice": "$10",
+    "planStarterDesc": "一對一導師、每日提示、完整資源庫",
+    "planLifetimeName": "終身方案",
+    "planLifetimePrice": "$15",
+    "planLifetimeDesc": "入門方案全部內容 + 終身使用、優先支援",
+    "signUpToUnlock": "請先註冊以解鎖"
+  },
+  "auth": {
+    "login": "登入",
+    "signup": "立即開始",
+    "email": "電子信箱",
+    "sendCode": "發送 6 位數驗證碼",
+    "enterCode": "輸入我們寄到你信箱的 6 位數驗證碼",
+    "verify": "驗證",
+    "checkInbox": "請到信箱查看！",
+    "loginPrompt": "輸入你的電子信箱。若已有帳號，我們將寄送 6 位數驗證碼。",
+    "needSignUpFirst": "前往註冊"
+  },
+  "app": {
+    "home": "首頁",
+    "library": "資源庫",
+    "aiHelper": "AI 助手",
+    "dailyTip": "今日提示",
+    "dailyDrill": "每日練習",
+    "dailyInsight": "每日洞察",
+    "premiumRequired": "需為進階版",
+    "unlockPremium": "解鎖進階版以使用 AI 助手。"
+  }
+}

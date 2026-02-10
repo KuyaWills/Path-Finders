@@ -1,0 +1,115 @@
+{
+  "landing": {
+    "title": "Figure out your career bottlenecks and get a daily, personalized dev growth plan.",
+    "subtitle": "Built for junior developers. Take a quick quiz, discover your profile, and receive tailored guidance every day.",
+    "ctaQuiz": "Start the quiz",
+    "getStarted": "Get Started",
+    "logIn": "Log in",
+    "brand": "PathFinders"
+  },
+  "quiz": {
+    "progress": "Step {current} of {total}",
+    "next": "Next",
+    "back": "Back",
+    "submit": "See my result",
+    "calculating": "Calculating…",
+    "calculatingProfile": "Calculating your profile…",
+    "step1": {
+      "title": "What's your current role?",
+      "option1_role_junior": "Junior developer",
+      "option1_role_mid": "Mid-level developer",
+      "option1_role_senior": "Senior developer",
+      "option1_role_student": "Student / bootcamp",
+      "option1_role_other": "Other"
+    },
+    "step2": {
+      "title": "What do you want to improve most?",
+      "option2_improve_code": "Code quality",
+      "option2_improve_system": "System design",
+      "option2_improve_debug": "Debugging",
+      "option2_improve_career": "Career growth",
+      "option2_improve_confidence": "Confidence"
+    },
+    "step3": {
+      "title": "How much time can you spend learning per week?",
+      "option3_time_1": "1–2 hours",
+      "option3_time_3": "3–5 hours",
+      "option3_time_5": "5–7 hours",
+      "option3_time_10": "10+ hours",
+      "option3_time_15": "15+ hours"
+    },
+    "step4": {
+      "title": "What's your biggest blocker right now?",
+      "option4_blocker_time": "Not enough time",
+      "option4_blocker_focus": "Don't know what to focus on",
+      "option4_blocker_guidance": "Lack of guidance",
+      "option4_blocker_opportunity": "No growth opportunities",
+      "option4_blocker_other": "Other"
+    },
+    "step5": {
+      "title": "Which areas interest you? (select all that apply)",
+      "option5_interest_backend": "Backend",
+      "option5_interest_frontend": "Frontend",
+      "option5_interest_fullstack": "Full-stack",
+      "option5_interest_devops": "DevOps / infra",
+      "option5_interest_data": "Data / ML"
+    },
+    "step6": {
+      "title": "In one sentence, what's your main career goal?",
+      "placeholder": "e.g. Land a backend role in 6 months"
+    },
+    "result": {
+      "title": "Your developer profile",
+      "subtitle": "Based on your answers, here’s your personalized profile.",
+      "minimalTeaser": "Your full personalized analysis is ready.",
+      "fullResultLocked": "Your detailed breakdown, career goal, and tailored plan are ready. Unlock to see them."
+    },
+    "unlockFullPlan": "Unlock your full plan"
+  },
+  "offer": {
+    "title": "Unlock your full plan",
+    "subtitle": "Get daily tips, the full library, and AI coaching tailored to your profile.",
+    "cta": "Unlock premium",
+    "unlocked": "You're in! Premium unlocked.",
+    "planName": "Junior Developer Growth Plan",
+    "planDescription": "Everything you need to build consistency and level up. One-time payment, lifetime access.",
+    "planFeature1": "Daily personalized tips and drills",
+    "planFeature2": "Full resource library (code, system design, debugging)",
+    "planFeature3": "AI coaching tailored to your quiz profile",
+    "planFeature4": "Career goal tracking and weekly check-ins",
+    "orderSummaryTitle": "Order summary",
+    "orderSummaryPlan": "Full plan — lifetime access",
+    "proceedToCheckout": "Proceed to checkout",
+    "goToApp": "Go to app",
+    "paymentCancelled": "Payment was cancelled. You can try again when you're ready.",
+    "choosePlan": "Choose a plan",
+    "planStarterName": "Starter",
+    "planStarterPrice": "$10",
+    "planStarterDesc": "1:1 tutor sessions, daily tips, full library",
+    "planLifetimeName": "Lifetime",
+    "planLifetimePrice": "$15",
+    "planLifetimeDesc": "Everything in Starter + lifetime access, priority support",
+    "signUpToUnlock": "Sign up to unlock"
+  },
+  "auth": {
+    "login": "Log in",
+    "signup": "Get Started",
+    "email": "Email",
+    "sendCode": "Send 6-digit code",
+    "enterCode": "Enter the 6-digit code we sent to your email",
+    "verify": "Verify",
+    "checkInbox": "Check your inbox!",
+    "loginPrompt": "Enter your email. We'll send a 6-digit code if you have an account.",
+    "needSignUpFirst": "Go to sign up"
+  },
+  "app": {
+    "home": "Home",
+    "library": "Library",
+    "aiHelper": "AI Helper",
+    "dailyTip": "Today's tip",
+    "dailyDrill": "Daily drill",
+    "dailyInsight": "Daily insight",
+    "premiumRequired": "Premium required",
+    "unlockPremium": "Unlock premium to use the AI helper."
+  }
+}
