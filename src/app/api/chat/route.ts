@@ -18,13 +18,14 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Premium required" }, { status: 403 });
   }
 
-  let body: { message?: string };
+  let requestBody: { message?: string };
   try {
-    body = await req.json();
+    requestBody = await req.json();
   } catch {
     return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
   }
-  const message = typeof body.message === "string" ? body.message.trim() : "";
+  const message =
+    typeof requestBody.message === "string" ? requestBody.message.trim() : "";
   if (!message) {
     return NextResponse.json({ error: "Message required" }, { status: 400 });
   }
@@ -65,8 +66,8 @@ export async function POST(req: Request) {
     );
   }
 
-  const body = stream.body;
-  if (!body) {
+  const responseBody = stream.body;
+  if (!responseBody) {
     return NextResponse.json({ error: "No body" }, { status: 502 });
   }
 
@@ -74,7 +75,7 @@ export async function POST(req: Request) {
   const readable = new ReadableStream({
     async start(controller) {
       const decoder = new TextDecoder();
-      const reader = body.getReader();
+      const reader = responseBody.getReader();
       try {
         for (;;) {
           const { done, value } = await reader.read();
