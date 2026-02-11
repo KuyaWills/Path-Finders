@@ -3,7 +3,7 @@
 import { useTranslations } from "next-intl";
 import { Link, usePathname, useRouter } from "@/i18n/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { Home, BookOpen, LogOut, Crown } from "lucide-react";
+import { Home, BookOpen, LogOut, Crown, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 type Props = { isPremium?: boolean };
@@ -59,6 +59,14 @@ export function AppNav({ isPremium }: Props) {
             <BookOpen className="h-4 w-4" />
             <span className="hidden sm:inline">{t("library")}</span>
           </Link>
+          <button
+            type="button"
+            onClick={() => window.dispatchEvent(new CustomEvent("pathfinders:openChat"))}
+            className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-50 hover:text-zinc-900"
+          >
+            <MessageCircle className="h-4 w-4" />
+            <span className="hidden sm:inline">{t("aiHelper")}</span>
+          </button>
           <Button
             variant="outline"
             size="sm"

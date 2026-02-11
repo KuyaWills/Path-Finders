@@ -12,10 +12,18 @@ interface Message {
   content: string;
 }
 
+const OPEN_CHAT_EVENT = "pathfinders:openChat";
+
 export function ChatWidget() {
   const t = useTranslations("app");
   const tOffer = useTranslations("offer");
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    const handler = () => setOpen(true);
+    window.addEventListener(OPEN_CHAT_EVENT, handler);
+    return () => window.removeEventListener(OPEN_CHAT_EVENT, handler);
+  }, []);
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
