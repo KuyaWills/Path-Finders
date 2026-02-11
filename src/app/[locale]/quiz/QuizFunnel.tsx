@@ -10,6 +10,7 @@ import {
   getQuizState,
   saveQuizState,
   clearQuizState,
+  emptyState,
   TOTAL_STEPS,
   type QuizState,
   type QuizStepAnswer,
@@ -45,10 +46,12 @@ export function QuizFunnel() {
     // After login/signup we redirect with new_session=1 so user starts quiz from step 1 with no answers
     if (searchParams.get("new_session") === "1") {
       clearQuizState();
+      setState(emptyState);
       router.replace("/quiz", { scroll: false });
+    } else {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- sync from localStorage when userId available
+      setState(getQuizState(userId));
     }
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- sync from localStorage when userId available
-    setState(getQuizState(userId));
     setMounted(true);
   }, [authChecked, userId, searchParams, router]);
 

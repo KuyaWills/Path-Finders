@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { OtpAuthLayout, OtpAuthFooter } from "@/components/auth/OtpAuthLayout";
 import { useOtpResendTimer } from "@/hooks/useOtpResendTimer";
+import { clearQuizState } from "@/app/[locale]/quiz/QuizStore";
 
 export default function LoginForm() {
   const searchParams = useSearchParams();
@@ -38,7 +39,11 @@ export default function LoginForm() {
     supabase.auth.getUser().then(({ data: { user } }) => {
       if (user) {
         const redirect = searchParams.get("redirect");
-        router.replace(redirect && redirect.startsWith("/") ? redirect : "/quiz");
+        const target = redirect && redirect.startsWith("/") ? redirect : "/quiz";
+        // Clear quiz state before redirect so user always starts from step 1 after login
+        if (target === "/quiz") clearQuizState();
+        const path = target === "/quiz" ? "/quiz?new_session=1" : target;
+        router.replace(path);
       }
     });
   }, [router, searchParams]);

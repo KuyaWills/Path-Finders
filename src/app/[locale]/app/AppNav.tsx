@@ -62,7 +62,7 @@ export function AppNav({ isPremium }: Props) {
           <button
             type="button"
             onClick={() => window.dispatchEvent(new CustomEvent("pathfinders:openChat"))}
-            className="flex cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-50 hover:text-zinc-900"
+            className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-zinc-600 transition-colors hover:bg-zinc-50 hover:text-zinc-900"
           >
             <MessageCircle className="h-4 w-4" />
             <span className="hidden sm:inline">{t("aiHelper")}</span>

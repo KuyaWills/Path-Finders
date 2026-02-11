@@ -15,7 +15,7 @@ interface StoredQuizState extends QuizState {
 
 const TOTAL_STEPS = 6;
 
-const emptyState: QuizState = { step: 0, answers: {}, completedAt: null };
+export const emptyState: QuizState = { step: 0, answers: {}, completedAt: null };
 
 /**
  * Get quiz state for the current user. If stored state belongs to a different user,
