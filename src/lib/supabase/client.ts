@@ -6,9 +6,8 @@ export function createClient() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       auth: {
-        // Do not persist sessions in localStorage; treat auth as per‑tab/session only.
-        // This means closing the tab or doing a full reload will require logging in again.
-        persistSession: false,
+        // Session must persist so OTP verification → redirect preserves auth.
+        persistSession: true,
       },
     }
   );

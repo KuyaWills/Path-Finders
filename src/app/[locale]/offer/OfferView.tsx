@@ -33,7 +33,6 @@ export function OfferView({
   const [purchasedPlan, setPurchasedPlan] = useState<PlanId | null>(null);
   const [purchasedAt, setPurchasedAt] = useState<number | null>(null);
 
-  const effectiveUserId = serverUserId ?? clientUserId;
 
   useEffect(() => {
     if (serverUserId) return;

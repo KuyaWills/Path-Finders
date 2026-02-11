@@ -56,7 +56,7 @@ function buildAnswersSummary(answers: Record<number, string | string[]>): string
   return lines.join("\n");
 }
 
-/** Fallback when OpenAI is not configured: generic analysis and plan */
+/** Fallback when Alibaba API is not configured: generic analysis and plan */
 function buildFallbackResponse(answers: Record<number, string | string[]>): {
   analysis: string;
   plan: string;
@@ -91,7 +91,7 @@ export async function POST(req: Request) {
   }
 
   const summary = buildAnswersSummary(answers);
-  const apiKey = process.env.NEXT_OPENAI_API_KEY;
+  const apiKey = process.env.DASHSCOPE_API_KEY;
 
   if (!apiKey) {
     return NextResponse.json({
@@ -113,14 +113,14 @@ Use \\n\\n to separate plan steps.`;
 
   const userPrompt = `Quiz answers:\n${summary}\n\nReturn JSON with "analysis" and "plan" as described.`;
 
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
+  const res = await fetch("https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: "gpt-4o-mini",
+      model: "qwen-plus",
       messages: [
         { role: "system", content: systemPrompt },
         { role: "user", content: userPrompt },

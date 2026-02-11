@@ -5,7 +5,7 @@ PathFinders is a small web app that helps junior developers:
 - Get a personalized profile and improvement plan.
 - Optionally unlock premium content with a one‑time Stripe payment.
 
-The app is built with **Next.js (App Router + next-intl)** and **Supabase** (auth + data) and uses **Supabase Edge Functions** for OTP and Stripe flows.
+The app is built with **Next.js (App Router + next-intl)** and **Supabase** (auth + data) and uses **Supabase Edge Functions** for Stripe flows. OTP/auth uses Supabase's built-in magic link (no Resend).
 
 ---
 
@@ -17,7 +17,6 @@ The app is built with **Next.js (App Router + next-intl)** and **Supabase** (aut
 - **npm**: v9+ (or pnpm/yarn if you prefer)
 - **Supabase** project (URL, anon key, service role key)
 - **Stripe** account with Checkout prices
-- (Optional) **Resend** account for sending OTP emails
 - Supabase CLI installed (`npm install -g supabase`)
 
 ### 1.2 Clone & Install
@@ -50,13 +49,8 @@ STRIPE_SECRET_KEY=sk_test_xxx
 STRIPE_PRICE_STARTER=price_xxx       # optional, can omit if only lifetime
 STRIPE_PRICE_LIFETIME=price_yyy      # main price used
 
-# OpenAI (for /api/chat)
-NEXT_OPENAI_API_KEY=sk-...
-
-# Optional: for Supabase Edge Functions that send email
-RESEND_API_KEY=your_resend_api_key
-RESEND_OTP=your_resend_otp_key
-SEND_EMAIL_HOOK_SECRET=your_send_email_hook_secret
+# Alibaba Cloud Tongyi Qianwen (for /api/chat and /api/quiz/analyze)
+DASHSCOPE_API_KEY=sk-...
 
 # App base URL (used by Supabase functions for success/cancel URLs)
 APP_URL=http://localhost:3000
@@ -72,7 +66,7 @@ APP_URL=http://localhost:3000
 
 ## 3. Database & Migrations
 
-If you want to use the original schema (profiles, daily content, OTP codes, etc.), run the migrations contained under `supabase/migrations/` in your own Supabase project.
+If you want to use the original schema (profiles, daily content, etc.), run the migrations contained under `supabase/migrations/` in your own Supabase project.
 
 ### 3.1 Link Supabase project
 
@@ -100,24 +94,27 @@ To populate the Library page with sample content, run `supabase/seed_library.sql
 
 ---
 
-## 4. Supabase Edge Functions
+## 4. Auth (OTP) & Edge Functions
 
-The app relies on a few Edge Functions (Deno):
+### 4.1 OTP / Magic Link (Supabase built-in)
 
-- `send-otp` – sends 6‑digit login/signup code via email.
-- `verify-otp` – verifies the code and issues a Supabase magic link / session.
-- `stripe_payment` – creates Stripe Checkout session (one‑time payment).
-- `stripe_session` – verifies Stripe checkout session and marks the user `is_premium`.
+The app uses Supabase Auth's `signInWithOtp` and `verifyOtp` — no custom Edge Functions or Resend.
 
-### 4.1 Deploy functions
+1. **Supabase Dashboard** → **Authentication** → **Email Templates** → **Magic Link**
+2. Set the template body to use `{{ .Token }}` (6-digit code). See `docs/SUPABASE_OTP_SETUP.md` for the full PathFinders template.
+3. Add redirect URLs in **Authentication** → **URL Configuration**
+4. (Optional) Configure custom SMTP for sending to any email; see `docs/EMAIL_SETUP.md`
 
-From the repo root:
+### 4.2 Stripe Edge Functions
+
+For payments, deploy these Edge Functions:
+
+- `stripe_payment` – creates Stripe Checkout session (one‑time payment)
+- `stripe_session` – verifies Stripe checkout session and marks the user `is_premium`
 
 ```bash
-supabase functions deploy send-otp verify-otp stripe_payment stripe_session
+supabase functions deploy stripe_payment stripe_session
 ```
-
-Make sure the folder names in `supabase/functions/` match the function names above.
 
 ---
 

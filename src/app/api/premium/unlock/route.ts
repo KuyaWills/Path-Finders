@@ -14,7 +14,7 @@ export async function POST() {
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
-  } catch (e) {
+  } catch {
     return NextResponse.json(
       { error: "Server error. Ensure profiles table exists with id (uuid), is_premium (boolean)." },
       { status: 500 }

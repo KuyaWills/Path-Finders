@@ -14,6 +14,11 @@ export function AppNav({ isPremium }: Props) {
   const router = useRouter();
 
   const handleLogout = async () => {
+    try {
+      window.localStorage.removeItem("pathfinders_last_purchase");
+    } catch {
+      // ignore
+    }
     const supabase = createClient();
     await supabase.auth.signOut();
     router.push("/");

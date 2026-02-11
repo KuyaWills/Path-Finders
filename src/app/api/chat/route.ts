@@ -34,22 +34,22 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Message required" }, { status: 400 });
   }
 
-  const apiKey = process.env.NEXT_OPENAI_API_KEY;
+  const apiKey = process.env.DASHSCOPE_API_KEY;
   if (!apiKey) {
     return NextResponse.json(
-      { error: "OpenAI API key not configured" },
+      { error: "Alibaba API key not configured" },
       { status: 503 }
     );
   }
 
-  const stream = await fetch("https://api.openai.com/v1/chat/completions", {
+  const stream = await fetch("https://dashscope-intl.aliyuncs.com/compatible-mode/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`,
     },
     body: JSON.stringify({
-      model: "gpt-4o-mini",
+      model: "qwen-plus",
       messages: [
         {
           role: "system",

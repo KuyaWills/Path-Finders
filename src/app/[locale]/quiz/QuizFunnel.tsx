@@ -25,6 +25,7 @@ export function QuizFunnel() {
   const [state, setState] = useState<QuizState>({ step: 0, answers: {}, completedAt: null });
   const [mounted, setMounted] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
@@ -34,25 +35,30 @@ export function QuizFunnel() {
         router.replace("/login?redirect=/quiz");
         return;
       }
+      setUserId(user.id);
       setAuthChecked(true);
     });
   }, [router]);
 
   useEffect(() => {
-    if (!authChecked) return;
+    if (!authChecked || !userId) return;
     // After login/signup we redirect with new_session=1 so user starts quiz from step 1 with no answers
     if (searchParams.get("new_session") === "1") {
       clearQuizState();
       router.replace("/quiz", { scroll: false });
     }
-    setState(getQuizState());
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- sync from localStorage when userId available
+    setState(getQuizState(userId));
     setMounted(true);
-  }, [authChecked, searchParams, router]);
+  }, [authChecked, userId, searchParams, router]);
 
-  const persist = useCallback((newState: QuizState) => {
-    setState(newState);
-    saveQuizState(newState);
-  }, []);
+  const persist = useCallback(
+    (newState: QuizState) => {
+      setState(newState);
+      if (userId) saveQuizState(newState, userId);
+    },
+    [userId]
+  );
 
   const currentStepConfig = QUIZ_STEPS[state.step];
   const currentAnswer = state.answers[state.step];

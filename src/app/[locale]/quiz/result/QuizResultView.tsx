@@ -6,6 +6,27 @@ import { Link, useRouter } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { getQuizState } from "../QuizStore";
 import { Sparkles } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+
+const DEFAULT_ANALYSIS =
+  "Your answers show a mix of habits many developers have. There's always room to level up: using the debugger more, reading docs before searching, and treating code review as a learning conversation are habits that help.";
+
+const DEFAULT_PLAN = [
+  "1. Use the debugger on your next bug.",
+  "2. When stuck, read docs for 15 minutes before searching.",
+  "3. Trace one user flow when learning a new codebase.",
+  "4. Ask \"why\" when you get code review feedback.",
+].join("\n\n");
+
+const FALLBACK_ANALYSIS =
+  "We couldn't run the full analysis right now. Here's a solid default plan: use the debugger more, read docs when stuck, trace one flow in new codebases, and ask \"why\" in code reviews.";
+
+const FALLBACK_PLAN = [
+  "1. Use the debugger on your next bug.",
+  "2. Read official docs for 15 minutes before searching.",
+  "3. Trace one user flow in the new repo.",
+  "4. Ask reviewers why they suggested changes.",
+].join("\n\n");
 
 export function QuizResultView() {
   const t = useTranslations("quiz");
@@ -17,24 +38,28 @@ export function QuizResultView() {
   const progressIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    const state = getQuizState();
-    if (!state.completedAt) {
-      router.replace("/quiz");
-      return;
-    }
-
     let cancelled = false;
-    const LOADING_MS = 2200;
-    const PROGRESS_END = 98;
-    const start = Date.now();
-    progressIntervalRef.current = setInterval(() => {
-      if (cancelled) return;
-      const elapsed = Date.now() - start;
-      const p = Math.min(PROGRESS_END, Math.round((elapsed / LOADING_MS) * PROGRESS_END));
-      setProgress(p);
-    }, 50);
 
-    async function run() {
+    async function init() {
+      const supabase = createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+      if (cancelled) return;
+      const state = getQuizState(user?.id ?? null);
+      if (!state.completedAt) {
+        router.replace("/quiz");
+        return;
+      }
+
+      const LOADING_MS = 2200;
+      const PROGRESS_END = 98;
+      const start = Date.now();
+      progressIntervalRef.current = setInterval(() => {
+        if (cancelled) return;
+        const elapsed = Date.now() - start;
+        const p = Math.min(PROGRESS_END, Math.round((elapsed / LOADING_MS) * PROGRESS_END));
+        setProgress(p);
+      }, 50);
+
       try {
         const res = await fetch("/api/quiz/analyze", {
           method: "POST",
@@ -45,27 +70,15 @@ export function QuizResultView() {
         if (cancelled) return;
         if (res.ok && data.analysis) {
           setAnalysis(data.analysis);
-          setPlan(
-            typeof data.plan === "string"
-              ? data.plan
-              : "Focus on one habit at a time: use the debugger, read docs when stuck, and ask \"why\" in code reviews."
-          );
+          setPlan(typeof data.plan === "string" ? data.plan : DEFAULT_PLAN);
         } else {
-          setAnalysis(
-            "Your answers show a mix of habits many developers have. There's always room to level up: using the debugger more, reading docs before searching, and treating code review as a learning conversation are habits that help."
-          );
-          setPlan(
-            "1. Use the debugger on your next bug.\n\n2. When stuck, read docs for 15 minutes before searching.\n\n3. Trace one user flow when learning a new codebase.\n\n4. Ask \"why\" when you get code review feedback."
-          );
+          setAnalysis(DEFAULT_ANALYSIS);
+          setPlan(DEFAULT_PLAN);
         }
       } catch {
         if (cancelled) return;
-        setAnalysis(
-          "We couldn't run the full analysis right now. Here’s a solid default plan: use the debugger more, read docs when stuck, trace one flow in new codebases, and ask \"why\" in code reviews."
-        );
-        setPlan(
-          "1. Use the debugger on your next bug.\n\n2. Read official docs for 15 minutes before searching.\n\n3. Trace one user flow in the new repo.\n\n4. Ask reviewers why they suggested changes."
-        );
+        setAnalysis(FALLBACK_ANALYSIS);
+        setPlan(FALLBACK_PLAN);
       } finally {
         if (progressIntervalRef.current) {
           clearInterval(progressIntervalRef.current);
@@ -74,7 +87,8 @@ export function QuizResultView() {
         if (!cancelled) setProgress(100);
       }
     }
-    run();
+
+    init();
     return () => {
       cancelled = true;
       if (progressIntervalRef.current) {

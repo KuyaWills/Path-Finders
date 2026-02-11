@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Mail, CheckCircle2, Loader2, Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
-import { signInWithOtp } from "@/services/auth";
+import { sendOtp } from "@/services/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
@@ -22,7 +22,7 @@ export default function Signup() {
     try {
       const supabase = createClient();
       const redirectTo = `${window.location.origin}/auth/callback`;
-      const result = await signInWithOtp(supabase, email, redirectTo);
+      const result = await sendOtp(supabase, email, { emailRedirectTo: redirectTo, mode: "signup" });
 
       if (result.success) {
         setSent(true);
